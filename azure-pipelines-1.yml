@@ -1,0 +1,28 @@
+trigger:
+  - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+  - task: Bash@3
+    displayName: 'Install Flutter SDK'
+    inputs:
+      targetType: 'inline'
+      script: |
+        git clone https://github.com/flutter/flutter.git -b stable --depth 1
+        echo "##vso[task.prependpath]$PWD/flutter/bin"
+
+  - script: flutter pub get
+    displayName: 'Flutter Pub Get'
+
+  - script: flutter build web --release
+    displayName: 'Flutter Build Web'
+
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Web Artifact'
+    inputs:
+      PathtoPublish: 'build/web'
+      ArtifactName: 'drop'
+      publishLocation: 'Container’
+
