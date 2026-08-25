@@ -1,0 +1,32 @@
+trigger:
+  - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+  # 1. Tải và cài đặt Flutter SDK
+  - task: Bash@3
+    displayName: 'Install Flutter SDK'
+    inputs:
+      targetType: 'inline'
+      script: |
+        git clone https://github.com/flutter/flutter.git -b stable --depth 1
+        echo "##vso[task.prependpath]$PWD/flutter/bin"
+
+  # 2. Cài đặt dependencies
+  - script: flutter pub get
+    displayName: 'Flutter Pub Get'
+
+  # 3. Build Flutter Web
+  - script: flutter build web --release
+    displayName: 'Flutter Build Web'
+
+  # 4. Lưu artifact (kết quả build)
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Web Artifact'
+    inputs:
+      PathtoPublish: 'build/web'
+      ArtifactName: 'drop'
+      publishLocation: 'Container’
+
